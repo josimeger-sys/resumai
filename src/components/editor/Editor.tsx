@@ -78,7 +78,6 @@ const Editor: React.FC = () => {
         <OutputSection 
           data={optimizedData} 
           isLoading={isOptimizing}
-          isPro={isPro}
           onUnlock={() => setShowPayment(true)}
         />
       </div>
