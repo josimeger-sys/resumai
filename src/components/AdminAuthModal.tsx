@@ -61,6 +61,7 @@ const AdminAuthModal: React.FC<AdminAuthModalProps> = ({ isOpen, onSuccess, onCa
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="请输入密码"
+                autoComplete="current-password"
                 className="w-full bg-white border-2 border-fresh-border rounded-xl p-3 text-sm text-center font-bold tracking-widest mb-4 focus:shadow-cartoon focus:outline-none transition-all"
             />
             

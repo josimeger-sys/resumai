@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import { useResumeStore, Identity } from '../store/useResumeStore';
-import { Sparkles, Briefcase } from 'lucide-react';
+import { Sparkles, Briefcase, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
+import SettingsModal from './SettingsModal';
 
 const InputSection = () => {
+  const [showSettings, setShowSettings] = useState(false);
   const { 
     identity, 
     setIdentity, 
     rawExperience, 
     setRawExperience,
+    targetPosition,
+    setTargetPosition,
     jobDescription,
     setJobDescription,
     refine,
     isRefining,
     error,
+    aiConfig,
+    setAiConfig
   } = useResumeStore();
 
   const handleRefine = async () => {
@@ -52,6 +58,21 @@ const InputSection = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Target Position (New) */}
+      <div className="mb-6">
+        <label className="text-xs font-bold text-fresh-text uppercase tracking-wider mb-3 block flex items-center gap-2">
+           <span className="w-2 h-2 rounded-full bg-fresh-secondary border border-fresh-border"></span>
+           目标岗位
+        </label>
+        <input
+            type="text"
+            value={targetPosition}
+            onChange={(e) => setTargetPosition(e.target.value)}
+            placeholder={`例如：${identities.find(i => i.id === identity)?.label.split(' ')[0]}产品经理 (选填)`}
+            className="w-full bg-white border-2 border-fresh-border rounded-xl p-3 text-sm text-fresh-text placeholder:text-gray-400 focus:outline-none focus:shadow-cartoon transition-all"
+        />
       </div>
 
       {/* Job Description (New) */}
@@ -96,12 +117,25 @@ const InputSection = () => {
 
         {/* Error Message - Moved closer */}
         {error && (
-            <div className="mt-2 p-4 rounded-xl bg-fresh-pink/20 border-2 border-fresh-pink text-sm text-fresh-text font-bold flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 shadow-cartoon-sm">
-                <div className="text-xl animate-bounce">🙈</div>
-                <div className="flex-1">
-                <h4 className="font-black text-fresh-pink mb-1">哎呀，这里好像有点问题...</h4>
-                <span className="text-gray-600 leading-relaxed text-xs">{error}</span>
+            <div className="mt-2 p-4 rounded-xl bg-fresh-pink/20 border-2 border-fresh-pink text-sm text-fresh-text font-bold flex flex-col items-start gap-3 animate-in fade-in slide-in-from-bottom-2 shadow-cartoon-sm">
+                <div className="flex items-start gap-3">
+                    <div className="text-xl animate-bounce">🙈</div>
+                    <div className="flex-1">
+                        <h4 className="font-black text-fresh-pink mb-1">哎呀，这里好像有点问题...</h4>
+                        <span className="text-gray-600 leading-relaxed text-xs">{error}</span>
+                    </div>
                 </div>
+                
+                {/* Show settings button if it's a configuration error */}
+                {(error.includes('Configuration Error') || error.includes('API Key')) && (
+                    <button 
+                        onClick={() => setShowSettings(true)}
+                        className="w-full py-2 bg-fresh-pink text-white rounded-lg font-bold text-xs flex items-center justify-center gap-2 hover:bg-red-500 transition-colors shadow-sm"
+                    >
+                        <Settings size={14} />
+                        打开设置并修复
+                    </button>
+                )}
             </div>
         )}
       </div>
@@ -137,6 +171,12 @@ const InputSection = () => {
         </button>
       </div>
     </div>
+      <SettingsModal 
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        config={aiConfig}
+        onSave={setAiConfig}
+      />
     </>
   );
 };

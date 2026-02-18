@@ -189,7 +189,7 @@ ${data.result}
             get().addToHistory({
                 identity,
                 rawExperience,
-                targetPosition,
+                targetPosition: targetRole,
                 result: markdownResult
             });
 
@@ -216,8 +216,8 @@ ${data.result}
       },
     }),
     {
-      name: 'pm-resume-storage-v8', // Bump to v8 for new key
-      version: 1, 
+      name: 'pm-resume-storage-v9', // Bump to v9
+      version: 2, 
       partialize: (state) => ({ 
         history: state.history,
         aiConfig: state.aiConfig,
@@ -230,15 +230,19 @@ ${data.result}
          let envKey = import.meta.env.VITE_OPENAI_API_KEY || '';
          let envUrl = import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.deepseek.com';
          
-         // Auto-correct if user swapped them in Vercel
-         if (envKey.startsWith('http') && !envUrl.startsWith('http')) {
+         // Smart Auto-Correction Logic
+         const isKeyUrl = envKey.startsWith('http') || envKey.includes('://');
+         const isUrlKey = envUrl.startsWith('sk-');
+         
+         if (isUrlKey && isKeyUrl) {
+             // 100% sure they swapped them
              const temp = envKey;
-             envKey = envUrl; // This might be the key if swapped
+             envKey = envUrl;
              envUrl = temp;
-         } else if (envKey.startsWith('http')) {
-             // Key is URL, but URL is also URL? Or URL is empty?
-             // Just invalid key
-             envKey = ''; 
+         } else if (isKeyUrl) {
+             // Key is definitely wrong (URL), but BaseURL might not be the key
+             // Check if we can salvage anything
+             envKey = ''; // Clear it to force "Missing Key" error which is safer than "URL as Key"
          }
 
          return {

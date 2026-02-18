@@ -138,6 +138,7 @@ const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose }) => {
                             placeholder="请输入密码"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
+                            autoComplete="current-password"
                             className="w-full bg-white border-2 border-fresh-border rounded-xl p-3 text-sm text-fresh-text focus:shadow-cartoon focus:outline-none transition-all placeholder:text-gray-400"
                         />
                     </div>

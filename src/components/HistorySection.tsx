@@ -92,14 +92,14 @@ const HistorySection = () => {
             >
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-sm font-bold text-fresh-text line-clamp-1 group-hover/item:text-primary transition-colors">
-                  {item.rawExperience.slice(0, 30) || "未命名经历"}...
+                  {item.targetPosition || "未命名职位"}
                 </h3>
                 <span className="text-[10px] text-gray-500 font-bold whitespace-nowrap ml-2 bg-gray-50 px-1.5 py-0.5 rounded border border-fresh-border">
                   {formatDistanceToNow(item.timestamp, { addSuffix: true, locale: zhCN }).replace('about ', '')}
                 </span>
               </div>
               <p className="text-xs text-gray-600 font-medium line-clamp-2 leading-relaxed group-hover/item:text-gray-500">
-                {item.result.replace(/#/g, '').slice(0, 80)}...
+                {item.rawExperience.slice(0, 80)}...
               </p>
             </div>
           ))
