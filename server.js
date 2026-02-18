@@ -3,6 +3,7 @@ import cors from 'cors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import pool from './db.js'; // Note: using .js extension for ESM
+import axios from 'axios';
 
 const app = express();
 const PORT = process.env.PORT || 3002; // Changed port to 3002 to avoid conflict
@@ -136,11 +137,10 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
 app.post('/api/report-usage', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { targetPosition } = req.body;
         
         await pool.query(
-            'INSERT INTO usage_logs (user_id, action, target_position) VALUES (?, ?, ?)',
-            [userId, 'optimize_resume', targetPosition || null]
+            'INSERT INTO usage_logs (user_id, action) VALUES (?, ?)',
+            [userId, 'optimize_resume']
         );
 
         res.json({ success: true });
@@ -181,16 +181,6 @@ app.get('/api/admin/dashboard', authenticateToken, async (req, res) => {
             LIMIT 20
         `);
 
-        // 4. Top Job Positions (New)
-        const [topPositions] = await pool.query(`
-            SELECT target_position, COUNT(*) as count 
-            FROM usage_logs 
-            WHERE target_position IS NOT NULL 
-            GROUP BY target_position 
-            ORDER BY count DESC 
-            LIMIT 10
-        `);
-
         res.json({
             success: true,
             stats: {
@@ -199,8 +189,7 @@ app.get('/api/admin/dashboard', authenticateToken, async (req, res) => {
                 vipUsers: 0 // Not tracking VIPs
             },
             trend,
-            users,
-            topPositions
+            users
         });
 
     } catch (error) {
@@ -229,6 +218,84 @@ app.post('/api/admin/verify', authenticateToken, async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 7. AI Proxy (New)
+app.post('/api/optimize-resume', async (req, res) => {
+    try {
+        const { messages, model, apiKey, baseUrl } = req.body;
+        
+        // Construct API URL
+        let url = baseUrl || 'https://api.deepseek.com';
+        if (url.endsWith('/')) url = url.slice(0, -1);
+        
+        // Handle path logic similar to frontend, but more robust
+        let fullUrl;
+        if (url.endsWith('/chat/completions')) {
+            fullUrl = url;
+        } else {
+             // DeepSeek generally uses /chat/completions at root, but sometimes /v1/chat/completions
+             // If user passes 'https://api.deepseek.com', we try to append /chat/completions
+             // If that fails (404), we might need retry logic, but let's default to standard
+             fullUrl = `${url}/chat/completions`;
+        }
+        
+        console.log(`[Proxy] Forwarding request to: ${fullUrl}`);
+
+        const response = await axios.post(fullUrl, {
+            model: model || 'deepseek-chat',
+            messages: messages,
+            temperature: 0.8,
+            stream: false
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            validateStatus: () => true // Handle all status codes manually
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+            res.json(response.data);
+        } else {
+            // If 404, maybe try /v1 fallback?
+            if (response.status === 404 && !fullUrl.includes('/v1')) {
+                 console.log(`[Proxy] 404 encountered. Retrying with /v1 prefix...`);
+                 let retryUrl;
+                 if (url.endsWith('/')) {
+                     retryUrl = `${url}v1/chat/completions`;
+                 } else {
+                     retryUrl = `${url}/v1/chat/completions`;
+                 }
+                 
+                 const retryResponse = await axios.post(retryUrl, {
+                    model: model || 'deepseek-chat',
+                    messages: messages,
+                    temperature: 0.8,
+                    stream: false
+                 }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    validateStatus: () => true
+                 });
+                 
+                 if (retryResponse.status >= 200 && retryResponse.status < 300) {
+                     return res.json(retryResponse.data);
+                 } else {
+                     return res.status(retryResponse.status).json(retryResponse.data);
+                 }
+            }
+            
+            console.error(`[Proxy] Upstream error: ${response.status}`, response.data);
+            res.status(response.status).json(response.data);
+        }
+
+    } catch (error) {
+        console.error('[Proxy] Internal Server Error:', error.message);
+        res.status(500).json({ error: { message: error.message } });
     }
 });
 

@@ -22,6 +22,12 @@ export async function optimizeResume(
     // Remove the default OpenAI fallback URL if base URL is provided but empty
     let url = baseUrl || import.meta.env.VITE_OPENAI_BASE_URL;
     
+    // Sanity check: If URL looks like a model name (no http, no slash), ignore it
+    if (url && !url.startsWith('http') && !url.startsWith('/') && !url.includes('.')) {
+        console.warn('[AI Service] Invalid Base URL detected:', url, 'Falling back to default.');
+        url = '';
+    }
+
     // Fallback only if absolutely no URL is configured
     if (!url) {
         url = 'https://api.openai.com/v1';
@@ -30,13 +36,48 @@ export async function optimizeResume(
     // Ensure no trailing slash
     url = url.replace(/\/$/, '');
 
+    // Fix: If URL ends with /v1, remove it because we append /chat/completions manually
+    // Many providers use base_url as https://api.example.com/v1, so appending /chat/completions makes it /v1/chat/completions
+    // However, some providers might require specific paths.
+    // Standard OpenAI SDK behavior is usually base_url + /chat/completions.
+    // Let's assume the user provides a base URL like https://api.deepseek.com or https://api.deepseek.com/v1
+    
+    // Use local proxy (or Vercel rewrite) to avoid CORS
+    // This works for:
+    // 1. Dev (vite.config.ts proxy)
+    // 2. Preview (vite.config.ts preview.proxy)
+    // 3. Vercel (vercel.json rewrites)
+    if (url.includes('api.deepseek.com')) {
+        url = '/ai-api';
+    }
+
+    // Construct full URL carefully
+    let fullUrl;
+    if (url.endsWith('/chat/completions')) {
+        fullUrl = url;
+    } else {
+        // Ensure we don't double slash
+        if (url.endsWith('/')) url = url.slice(0, -1);
+        fullUrl = `${url}/chat/completions`;
+    }
+    
+    console.log('[AI Service] Request URL:', fullUrl); // Debug log
+
     const model = modelName || import.meta.env.VITE_OPENAI_MODEL || 'gpt-3.5-turbo';
+
+    
+    // Debug logging to identify what's being passed
+    console.log('[AI Service] Config:', { 
+        keyProvided: !!apiKey, 
+        keyLength: key ? key.length : 0, 
+        keyStart: key ? key.substring(0, 3) : 'N/A',
+        baseUrl: url,
+        fullUrl: fullUrl
+    });
 
     if (!key) {
         throw new Error('API Key is missing. Please check your settings or .env file.');
     }
-
-    const fullUrl = `${url}/chat/completions`;
     
     let levelInstruction = '';
     switch (identityLevel) {
@@ -65,7 +106,7 @@ export async function optimizeResume(
 `;
     }
 
-    const prompt = `
+    let prompt = `
 你是中文简历优化专家。请基于 STAR 法则（情境 Situation、任务 Task、行动 Action、结果 Result）为目标岗位“${targetPosition}”在“${identityLevel.toUpperCase()}”级别下重写以下经历，确保呈现更高的专业度与岗位匹配度。
 
 原始经历：
@@ -114,6 +155,52 @@ JSON 结构：
         });
 
         if (!response.ok) {
+            // Check for 405 Method Not Allowed specifically
+            if (response.status === 405) {
+                // If 405, it means we might be using the wrong endpoint or method.
+                // DeepSeek and OpenAI strictly use POST /chat/completions.
+                // If we get 405, it's possible we are hitting a different path or the proxy is interfering.
+                
+                // Let's try a fallback strategy: 
+                // If we are currently using /chat/completions and got 405, maybe we need /v1/chat/completions?
+                if (!url.includes('/v1')) {
+                     // Since we might be using the proxy /ai-api, we need to be careful
+                     // If url is /ai-api, we should try /ai-api/v1
+                     
+                     let retryBaseUrl;
+                     if (url === '/ai-api') {
+                         retryBaseUrl = '/ai-api/v1';
+                     } else {
+                         retryBaseUrl = `${url}/v1`;
+                     }
+                     
+                     console.log(`Initial request 405, retrying with base URL: ${retryBaseUrl}`);
+                     return optimizeResume(originalText, targetPosition, identityLevel, apiKey, retryBaseUrl, modelName, jobDescription);
+                }
+            }
+
+            if (response.status === 404) {
+                 // Check for Proxy Miss (Vite returning HTML for 404)
+                 const contentType = response.headers.get('content-type');
+                 if (contentType && contentType.includes('text/html')) {
+                     throw new Error('Configuration Error: The request hit the local server instead of the API. Please RESTART your development server (Ctrl+C then npm run dev) to apply the proxy configuration.');
+                 }
+
+                 // Try appending /v1/chat/completions if the first attempt failed with 404
+                 // This handles cases where user provided base domain (e.g. https://api.deepseek.com) but API expects /v1 prefix
+                 if (!url.includes('/v1')) {
+                     // Correctly construct the retry URL to include the missing /v1
+                     let retryBaseUrl;
+                     if (url === '/ai-api') {
+                         retryBaseUrl = '/ai-api/v1';
+                     } else {
+                         retryBaseUrl = `${url}/v1`;
+                     }
+                     console.log(`Initial request 404, retrying with base URL: ${retryBaseUrl}`);
+                     // Recursive call with corrected base URL
+                     return optimizeResume(originalText, targetPosition, identityLevel, apiKey, retryBaseUrl, modelName, jobDescription);
+                 }
+            }
             const errorText = await response.text().catch(() => '');
             let errorMessage = `API Error: ${response.statusText} (${response.status})`;
             

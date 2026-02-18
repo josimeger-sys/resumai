@@ -150,7 +150,6 @@ export const useResumeStore = create<ResumeState>()(
             const data = await optimizeResume(
                 rawExperience, 
                 targetRole,
-                identity,
                 aiConfig.apiKey, 
                 aiConfig.baseUrl, 
                 aiConfig.model,
@@ -202,7 +201,7 @@ ${data.result}
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ targetPosition: targetRole })
+                    body: JSON.stringify({})
                 });
             } catch (e) {
                 console.error('Usage reporting failed', e);
@@ -217,8 +216,8 @@ ${data.result}
       },
     }),
     {
-      name: 'pm-resume-storage',
-      version: 3, // Increment version
+      name: 'pm-resume-storage-v5', // Changed name to force complete reset of storage
+      version: 1, 
       partialize: (state) => ({ 
         history: state.history,
         aiConfig: state.aiConfig,
@@ -227,15 +226,6 @@ ${data.result}
         user: state.user
       }),
       migrate: (persistedState: any, version: number) => {
-        if (version < 3) {
-             return {
-                 ...persistedState,
-                 // Reset fields that are removed or changed
-                 usageCount: undefined,
-                 isVip: undefined,
-                 isPaymentModalOpen: undefined
-             }
-        }
         return persistedState as ResumeState;
       }
     }
