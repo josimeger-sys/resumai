@@ -113,7 +113,7 @@ app.post('/api/auth/login', async (req, res) => {
         id: user.id,
         username: user.username,
         role: user.role,
-        isVip: user.role === 'admin' // Simple mock for compatibility
+        isVip: false // Removed VIP logic, always false
       }
     });
   } catch (error) {
@@ -185,7 +185,7 @@ app.get('/api/admin/dashboard', authenticateToken, async (req, res) => {
             stats: {
                 totalUsers: userCount[0].count,
                 totalUsage: usageCount[0].count,
-                vipUsers: 0 // Not tracking VIPs in DB yet
+                vipUsers: 0 // Not tracking VIPs
             },
             trend,
             users

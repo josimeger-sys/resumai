@@ -14,20 +14,10 @@ const InputSection = () => {
     refine,
     isRefining,
     error,
-    isVip,
-    usageCount,
-    incrementUsage,
-    setPaymentModalOpen
   } = useResumeStore();
 
   const handleRefine = async () => {
-    if (!isVip && usageCount >= 3) {
-      setPaymentModalOpen(true);
-      return;
-    }
-    
     await refine();
-    incrementUsage();
   };
 
   const identities: { id: Identity; label: string }[] = [
@@ -141,7 +131,7 @@ const InputSection = () => {
           ) : (
             <>
               <Sparkles size={18} strokeWidth={2.5} className={clsx(!isRefining && rawExperience.trim() && "animate-pulse")} />
-              <span>{!isVip && usageCount >= 3 ? '解锁 VIP 继续优化' : isVip ? 'AI 智能优化' : `AI 智能优化 (剩余免费次数: ${Math.max(0, 3 - usageCount)})`}</span>
+              <span>AI 智能优化</span>
             </>
           )}
         </button>

@@ -4,22 +4,15 @@ import InputSection from '../components/InputSection';
 import HistorySection from '../components/HistorySection';
 import ResultSection from '../components/ResultSection';
 import GiftModal from '../components/GiftModal';
-import PaymentModal from '../components/payment/PaymentModal';
 import { Edit3, History, Coffee, Sparkles } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useResumeStore } from '../store/useResumeStore';
 
 function Home() {
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
-  const { isPaymentModalOpen, setPaymentModalOpen, checkVipStatus } = useResumeStore();
   const [activeTab, setActiveTab] = useState<'input' | 'result' | 'history'>('input');
   
   // Detect mobile view to adjust layout
   const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    checkVipStatus();
-  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -141,11 +134,6 @@ function Home() {
       <GiftModal 
         isOpen={isGiftModalOpen} 
         onClose={() => setIsGiftModalOpen(false)} 
-      />
-      
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setPaymentModalOpen(false)}
       />
     </div>
   );

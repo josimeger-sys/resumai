@@ -36,9 +36,6 @@ interface ResumeState {
   error: string | null;
   aiConfig: AIConfig;
   syncStatus: 'idle' | 'connected' | 'disconnected';
-  usageCount: number;
-  isVip: boolean;
-  isPaymentModalOpen: boolean;
   jobDescription: string;
   
   // Auth
@@ -52,10 +49,6 @@ interface ResumeState {
   setResult: (text: string) => void;
   setAiConfig: (config: AIConfig) => void;
   setSyncStatus: (status: 'idle' | 'connected' | 'disconnected') => void;
-  incrementUsage: () => void;
-  setVip: (isVip: boolean) => void;
-  setPaymentModalOpen: (isOpen: boolean) => void;
-  checkVipStatus: () => Promise<void>;
   addToHistory: (item: Omit<HistoryItem, 'id' | 'timestamp'>) => void;
   clearHistory: () => void;
   loadHistoryItem: (item: HistoryItem) => void;
@@ -84,9 +77,6 @@ export const useResumeStore = create<ResumeState>()(
         model: import.meta.env.VITE_OPENAI_MODEL || 'deepseek-chat'
       },
       syncStatus: 'idle',
-      usageCount: 0,
-      isVip: false,
-      isPaymentModalOpen: false,
       token: null,
       user: null,
 
@@ -97,16 +87,12 @@ export const useResumeStore = create<ResumeState>()(
       setResult: (result) => set({ result }),
       setAiConfig: (aiConfig) => set({ aiConfig }),
       setSyncStatus: (syncStatus) => set({ syncStatus }),
-      incrementUsage: () => set((state) => ({ usageCount: state.usageCount + 1 })),
-      setVip: (isVip) => set({ isVip }),
-      setPaymentModalOpen: (isOpen) => set({ isPaymentModalOpen: isOpen }),
       
       login: (token, user) => {
           set({ 
               token, 
               user, 
-              syncStatus: 'connected',
-              isVip: user.isVip 
+              syncStatus: 'connected'
           });
       },
 
@@ -114,35 +100,10 @@ export const useResumeStore = create<ResumeState>()(
           set({ 
               token: null, 
               user: null, 
-              syncStatus: 'disconnected',
-              isVip: false
+              syncStatus: 'disconnected'
           });
       },
 
-      checkVipStatus: async () => {
-        const { token } = get();
-        if (!token) return;
-
-        try {
-          const response = await fetch('/api/auth/me', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            set({ 
-                user: data.user,
-                // Update VIP status based on backend logic (currently using role)
-                isVip: data.user.role === 'admin'
-            });
-          } else {
-              // Token invalid
-              get().logout();
-          }
-        } catch (error) {
-          console.error('Failed to check auth status:', error);
-        }
-      },
       clearError: () => set({ error: null }),
 
       addToHistory: (item) => {
@@ -257,31 +218,22 @@ ${data.result}
     }),
     {
       name: 'pm-resume-storage',
-      version: 2,
+      version: 3, // Increment version
       partialize: (state) => ({ 
         history: state.history,
         aiConfig: state.aiConfig,
         syncStatus: state.syncStatus,
-        usageCount: state.usageCount,
-        isVip: state.isVip,
         token: state.token,
         user: state.user
       }),
       migrate: (persistedState: any, version: number) => {
-        if (version === 0) {
-            // migration from version 0 to 1
-            return {
-                ...persistedState,
-                // add new fields if needed
-            };
-        }
-        if (version === 1) {
-             // migration from version 1 to 2
+        if (version < 3) {
              return {
                  ...persistedState,
-                 token: null,
-                 user: null,
-                 syncStatus: 'idle'
+                 // Reset fields that are removed or changed
+                 usageCount: undefined,
+                 isVip: undefined,
+                 isPaymentModalOpen: undefined
              }
         }
         return persistedState as ResumeState;
