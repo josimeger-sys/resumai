@@ -1,0 +1,8 @@
+{
+  "user_current": {
+    "id": "user_current",
+    "username": "test_user",
+    "isVip": true,
+    "vipExpire": "永久"
+  }
+}

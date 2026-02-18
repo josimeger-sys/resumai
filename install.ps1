@@ -1,0 +1,1 @@
+& "C:\Users\86188\.trae\binaries\node\versions\24.13.1\node.exe" "C:\Users\86188\.trae\binaries\node\versions\24.13.1\node_modules\npm\bin\npm-cli.js" install
