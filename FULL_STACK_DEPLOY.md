@@ -37,7 +37,7 @@
     - **Region**: 选择离你最近的 (如 Singapore)
     - **Branch**: `main`
     - **Root Directory**: `.` (留空)
-    - **Runtime**: `Node`
+    - **Language**: `Node`
     - **Build Command**: `npm install`
     - **Start Command**: `node server.js`
 
