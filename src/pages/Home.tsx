@@ -124,10 +124,10 @@ function Home() {
             className="hover:text-fresh-main transition-colors cursor-pointer flex items-center gap-1"
           >
             <Coffee size={12} />
-            Buy Me a Coffee
+            请我喝杯咖啡
           </button>
           <span>•</span>
-          <span>Made for PMs by PMs</span>
+          <span>为产品经理打造，源自产品经理</span>
         </footer>
       </div>
 

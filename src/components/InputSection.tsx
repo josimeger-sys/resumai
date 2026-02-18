@@ -79,7 +79,6 @@ const InputSection = () => {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-3">
           <label className="text-xs font-bold text-fresh-text uppercase tracking-wider flex items-center gap-2">
-            <Briefcase size={14} className="text-primary" />
             目标岗位描述 (JD) - 选填
           </label>
         </div>

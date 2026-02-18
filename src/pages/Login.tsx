@@ -69,7 +69,7 @@ const Login = () => {
                 <Sparkles size={32} className="text-black" />
             </div>
             <h1 className="text-2xl font-black text-fresh-text mb-2">
-                Welcome to Resum<span className="text-purple-600">Ai</span>
+                欢迎使用 Resum<span className="text-purple-600">Ai</span>
             </h1>
             <p className="text-sm text-gray-500 font-bold">
                 {isLoginMode ? '登录以开始优化您的简历' : '创建一个新账号'}
@@ -85,7 +85,7 @@ const Login = () => {
                     value={username}
                     onChange={e => setUsername(e.target.value)}
                     className="w-full bg-white border-2 border-fresh-border rounded-xl p-3.5 text-sm text-fresh-text focus:shadow-cartoon focus:outline-none transition-all placeholder:text-gray-400"
-                    placeholder="Enter your username"
+                    placeholder="请输入用户名"
                 />
             </div>
             <div>
@@ -97,7 +97,7 @@ const Login = () => {
                     onChange={e => setPassword(e.target.value)}
                     autoComplete="current-password"
                     className="w-full bg-white border-2 border-fresh-border rounded-xl p-3.5 text-sm text-fresh-text focus:shadow-cartoon focus:outline-none transition-all placeholder:text-gray-400"
-                    placeholder="Enter your password"
+                    placeholder="请输入密码"
                 />
             </div>
 

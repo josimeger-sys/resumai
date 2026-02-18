@@ -80,7 +80,7 @@ export async function optimizeResume(
     }
 
     if (key.startsWith('http')) {
-        throw new Error('Configuration Error: API Key appears to be a URL. You might have swapped API Key and Base URL in your Vercel Environment Variables.');
+        throw new Error(`Configuration Error: API Key appears to be a URL (starts with ${key.substring(0, 8)}...). You might have swapped API Key and Base URL in your Vercel Environment Variables.`);
     }
     
     let levelInstruction = '';

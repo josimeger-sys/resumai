@@ -21,6 +21,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.apiKey.startsWith('http')) {
+        alert('API Key 看起来像一个网址。请检查是否与 Base URL 填反了。API Key 通常以 "sk-" 开头。');
+        return;
+    }
     onSave(formData);
     onClose();
   };
@@ -33,7 +37,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, 
             <div className="p-2 bg-fresh-main border-2 border-fresh-border rounded-xl text-black shadow-cartoon-sm">
               <Settings size={20} />
             </div>
-            <h2 className="text-lg font-black">AI Configuration</h2>
+            <h2 className="text-lg font-black">AI 配置</h2>
           </div>
           <button 
             onClick={onClose}
@@ -46,7 +50,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-2">
             <label className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-              API Provider
+              API 提供商
             </label>
             <div className="grid grid-cols-2 gap-2">
                 <button
@@ -68,7 +72,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, 
                     type="button"
                     onClick={() => setFormData({
                         ...formData,
-                        baseUrl: 'https://api.deepseek.com/v1',
+                        baseUrl: 'https://api.deepseek.com',
                         model: 'deepseek-chat'
                     })}
                     className={`p-2 rounded-xl border-2 text-sm font-bold transition-all shadow-cartoon-sm ${
@@ -84,7 +88,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, 
 
           <div className="space-y-2">
             <label className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-              Base URL
+              基础链接 (Base URL)
             </label>
             <input
               type="text"
@@ -97,7 +101,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, 
 
           <div className="space-y-2">
             <label className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-              API Key
+              API 密钥 (API Key)
             </label>
             <input
               type="password"
@@ -110,7 +114,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, 
 
           <div className="space-y-2">
             <label className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-              Model Name
+              模型名称 (Model Name)
             </label>
             <input
               type="text"
@@ -127,7 +131,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, 
               className="w-full py-3 rounded-xl bg-fresh-secondary border-2 border-fresh-border text-black font-black shadow-cartoon hover:shadow-cartoon-sm hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2"
             >
               <Save size={18} />
-              Save Configuration
+              保存配置
             </button>
           </div>
         </form>

@@ -150,6 +150,7 @@ export const useResumeStore = create<ResumeState>()(
             const data = await optimizeResume(
                 rawExperience, 
                 targetRole,
+                identity,
                 aiConfig.apiKey, 
                 aiConfig.baseUrl, 
                 aiConfig.model,
@@ -217,7 +218,7 @@ ${data.result}
     }),
     {
       name: 'pm-resume-storage-v9', // Bump to v9
-      version: 2, 
+      version: 6, 
       partialize: (state) => ({ 
         history: state.history,
         aiConfig: state.aiConfig,
