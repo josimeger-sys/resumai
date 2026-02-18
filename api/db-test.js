@@ -1,7 +1,7 @@
-// api/db-test.js
-const mysql = require('mysql2/promise');
+/// api/db-test.js
+import mysql from 'mysql2/promise';
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   try {
     const dbConfig = {
       host: process.env.DB_HOST,
