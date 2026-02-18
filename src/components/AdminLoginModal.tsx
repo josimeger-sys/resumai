@@ -85,6 +85,7 @@ const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClose }) =>
                     placeholder="管理员账号"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
+                    autoComplete="username"
                     className="w-full bg-white border-2 border-fresh-border rounded-xl p-3 text-sm font-bold placeholder:font-normal focus:shadow-cartoon focus:outline-none transition-all"
                 />
             </div>
@@ -94,6 +95,7 @@ const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClose }) =>
                     placeholder="管理员密码"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     className="w-full bg-white border-2 border-fresh-border rounded-xl p-3 text-sm font-bold placeholder:font-normal focus:shadow-cartoon focus:outline-none transition-all"
                 />
             </div>

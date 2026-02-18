@@ -216,7 +216,7 @@ ${data.result}
       },
     }),
     {
-      name: 'pm-resume-storage-v5', // Changed name to force complete reset of storage
+      name: 'pm-resume-storage-v6', // Bump to v6 to force migration
       version: 1, 
       partialize: (state) => ({ 
         history: state.history,
@@ -226,7 +226,16 @@ ${data.result}
         user: state.user
       }),
       migrate: (persistedState: any, version: number) => {
-        return persistedState as ResumeState;
+        // Force reset of aiConfig regardless of previous state
+        // This ensures bad config (swapped keys/urls) is wiped out
+        return {
+            ...persistedState,
+            aiConfig: {
+                apiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
+                baseUrl: import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.deepseek.com',
+                model: import.meta.env.VITE_OPENAI_MODEL || 'deepseek-chat'
+            }
+        } as ResumeState;
       }
     }
   )
