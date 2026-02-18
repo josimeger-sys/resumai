@@ -136,10 +136,11 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
 app.post('/api/report-usage', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
+        const { targetPosition } = req.body;
         
         await pool.query(
-            'INSERT INTO usage_logs (user_id, action) VALUES (?, ?)',
-            [userId, 'optimize_resume']
+            'INSERT INTO usage_logs (user_id, action, target_position) VALUES (?, ?, ?)',
+            [userId, 'optimize_resume', targetPosition || null]
         );
 
         res.json({ success: true });
@@ -180,6 +181,16 @@ app.get('/api/admin/dashboard', authenticateToken, async (req, res) => {
             LIMIT 20
         `);
 
+        // 4. Top Job Positions (New)
+        const [topPositions] = await pool.query(`
+            SELECT target_position, COUNT(*) as count 
+            FROM usage_logs 
+            WHERE target_position IS NOT NULL 
+            GROUP BY target_position 
+            ORDER BY count DESC 
+            LIMIT 10
+        `);
+
         res.json({
             success: true,
             stats: {
@@ -188,7 +199,8 @@ app.get('/api/admin/dashboard', authenticateToken, async (req, res) => {
                 vipUsers: 0 // Not tracking VIPs
             },
             trend,
-            users
+            users,
+            topPositions
         });
 
     } catch (error) {

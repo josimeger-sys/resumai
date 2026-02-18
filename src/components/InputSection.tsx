@@ -54,6 +54,23 @@ const InputSection = () => {
         </div>
       </div>
 
+      {/* Target Position (New) */}
+      <div className="mb-6">
+        <label className="text-xs font-bold text-fresh-text uppercase tracking-wider mb-3 block flex items-center gap-2">
+           <span className="w-2 h-2 rounded-full bg-blue-400 border border-fresh-border"></span>
+           目标岗位名称
+        </label>
+        <div className="relative group/input">
+          <input
+            type="text"
+            value={useResumeStore.getState().targetPosition}
+            onChange={(e) => useResumeStore.getState().setTargetPosition(e.target.value)}
+            placeholder="例如：产品经理、运营专员 (选填，默认为当前职级+产品经理)"
+            className="w-full bg-white border-2 border-fresh-border rounded-xl p-3 text-sm text-fresh-text placeholder:text-gray-400 focus:outline-none focus:shadow-cartoon transition-all"
+          />
+        </div>
+      </div>
+
       {/* Job Description (New) */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-3">

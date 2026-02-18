@@ -114,7 +114,7 @@ const AdminDashboard = () => {
     },
     series: [
       {
-        name: 'Usage',
+        name: '使用量',
         type: 'bar',
         barWidth: '60%',
         data: stats.trend.map((t: any) => t.count),
@@ -145,25 +145,25 @@ const AdminDashboard = () => {
                 <div className="p-2 bg-fresh-secondary rounded-lg border-2 border-fresh-border shadow-cartoon-sm">
                     <LayoutDashboard size={24} className="text-black" />
                 </div>
-                <h1 className="text-2xl font-black text-fresh-text">Admin Dashboard</h1>
+                <h1 className="text-2xl font-black text-fresh-text">管理后台</h1>
             </div>
         </div>
         <button onClick={fetchStats} className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-fresh-border rounded-xl font-bold hover:shadow-cartoon-sm transition-all active:translate-y-1">
             <RefreshCw size={18} />
-            <span>Refresh</span>
+            <span>刷新</span>
         </button>
       </header>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <StatCard 
-            title="Total Users" 
+            title="总用户数" 
             value={stats.stats.totalUsers} 
             icon={<Users size={24} className="text-white" />} 
             color="bg-primary" 
         />
         <StatCard 
-            title="Total Usage" 
+            title="总使用次数" 
             value={stats.stats.totalUsage} 
             icon={<TrendingUp size={24} className="text-black" />} 
             color="bg-fresh-main" 
@@ -176,46 +176,79 @@ const AdminDashboard = () => {
         <div className="bg-white p-6 rounded-cartoon border-2 border-fresh-border shadow-cartoon">
             <h2 className="text-lg font-black text-fresh-text mb-4 flex items-center gap-2">
                 <TrendingUp size={20} className="text-primary" />
-                Usage Trend (7 Days)
+                使用趋势 (近7天)
             </h2>
             <div className="h-[300px] w-full">
                 <ReactECharts option={chartOption} style={{ height: '100%', width: '100%' }} />
             </div>
         </div>
 
-        {/* User Table Section */}
+        {/* Top Positions (New) */}
         <div className="bg-white p-6 rounded-cartoon border-2 border-fresh-border shadow-cartoon flex flex-col h-[400px]">
             <h2 className="text-lg font-black text-fresh-text mb-4 flex items-center gap-2">
-                <Users size={20} className="text-fresh-accent" />
-                Top Users
+                <Sparkles size={20} className="text-fresh-accent" />
+                Top 10 热门岗位
             </h2>
             <div className="overflow-y-auto custom-scrollbar flex-1">
                 <table className="w-full text-left border-collapse">
                     <thead className="sticky top-0 bg-white z-10">
                         <tr>
-                            <th className="p-3 border-b-2 border-fresh-border text-xs font-black text-gray-500 uppercase">User ID</th>
-                            <th className="p-3 border-b-2 border-fresh-border text-xs font-black text-gray-500 uppercase text-right">Usage</th>
+                            <th className="p-3 border-b-2 border-fresh-border text-xs font-black text-gray-500 uppercase">岗位名称</th>
+                            <th className="p-3 border-b-2 border-fresh-border text-xs font-black text-gray-500 uppercase text-right">优化次数</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {stats.users.map((user: any) => (
-                            <tr key={user.id} className="hover:bg-fresh-bg transition-colors group">
-                                <td className="p-3 border-b border-gray-100 font-bold text-sm text-fresh-text">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full bg-gray-100 border border-fresh-border flex items-center justify-center text-xs font-black text-gray-500 group-hover:bg-white group-hover:shadow-cartoon-sm transition-all">
-                                            {user.username[0].toUpperCase()}
-                                        </div>
-                                        {user.username}
-                                    </div>
+                        {stats.topPositions?.map((pos: any, idx: number) => (
+                            <tr key={idx} className="hover:bg-fresh-bg transition-colors group">
+                                <td className="p-3 border-b border-gray-100 font-bold text-sm text-fresh-text flex items-center gap-2">
+                                    <span className={`w-5 h-5 flex items-center justify-center rounded-full text-[10px] text-white ${idx < 3 ? 'bg-fresh-main' : 'bg-gray-300'}`}>
+                                        {idx + 1}
+                                    </span>
+                                    {pos.target_position}
                                 </td>
                                 <td className="p-3 border-b border-gray-100 text-right font-mono font-bold text-primary">
-                                    {user.usageCount}
+                                    {pos.count}
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+        </div>
+      </div>
+      
+      {/* User Table Section - Moved to bottom */}
+      <div className="mt-8 bg-white p-6 rounded-cartoon border-2 border-fresh-border shadow-cartoon flex flex-col h-[400px]">
+        <h2 className="text-lg font-black text-fresh-text mb-4 flex items-center gap-2">
+            <Users size={20} className="text-fresh-accent" />
+            活跃用户排行
+        </h2>
+        <div className="overflow-y-auto custom-scrollbar flex-1">
+            <table className="w-full text-left border-collapse">
+                <thead className="sticky top-0 bg-white z-10">
+                    <tr>
+                        <th className="p-3 border-b-2 border-fresh-border text-xs font-black text-gray-500 uppercase">用户</th>
+                        <th className="p-3 border-b-2 border-fresh-border text-xs font-black text-gray-500 uppercase text-right">使用次数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {stats.users.map((user: any) => (
+                        <tr key={user.id} className="hover:bg-fresh-bg transition-colors group">
+                            <td className="p-3 border-b border-gray-100 font-bold text-sm text-fresh-text">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-gray-100 border border-fresh-border flex items-center justify-center text-xs font-black text-gray-500 group-hover:bg-white group-hover:shadow-cartoon-sm transition-all">
+                                        {user.username[0].toUpperCase()}
+                                    </div>
+                                    {user.username}
+                                </div>
+                            </td>
+                            <td className="p-3 border-b border-gray-100 text-right font-mono font-bold text-primary">
+                                {user.usageCount}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
       </div>
     </div>

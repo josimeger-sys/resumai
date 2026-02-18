@@ -202,7 +202,7 @@ ${data.result}
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify({ targetPosition: targetRole })
                 });
             } catch (e) {
                 console.error('Usage reporting failed', e);

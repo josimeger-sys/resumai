@@ -51,12 +51,24 @@ async function initDB() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
         action VARCHAR(255),
+        target_position VARCHAR(255),
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     `;
     await connection.query(createLogsTable);
     console.log('Table "usage_logs" checked/created.');
+    
+    // Add column if not exists (for existing tables)
+    try {
+        await connection.query(`ALTER TABLE usage_logs ADD COLUMN target_position VARCHAR(255)`);
+        console.log('Added column "target_position" to "usage_logs".');
+    } catch (e) {
+        // Ignore error if column already exists
+        if (e.code !== 'ER_DUP_FIELDNAME') {
+             console.log('Column "target_position" already exists or other error:', e.message);
+        }
+    }
 
     // 6. Create Admin User
     const adminUsername = '18800199049';
