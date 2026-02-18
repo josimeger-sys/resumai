@@ -25,33 +25,33 @@ const GiftModal: React.FC<GiftModalProps> = ({ isOpen, onClose }) => {
     {
       id: 'coffee',
       price: 1,
-      label: 'Small Coffee',
+      label: '小杯咖啡',
       icon: <Coffee size={24} />,
-      description: 'Fuel for one coding session',
+      description: '为一次编码提供能量',
       color: 'bg-orange-300'
     },
     {
       id: 'energy',
       price: 3,
-      label: 'Energy Drink',
+      label: '能量饮料',
       icon: <Zap size={24} />,
-      description: 'Keep the servers running fast',
+      description: '保持服务器快速运行',
       color: 'bg-primary'
     },
     {
       id: 'love',
       price: 5,
-      label: 'Lots of Love',
+      label: '满满爱心',
       icon: <Heart size={24} />,
-      description: 'Support future development',
+      description: '支持未来开发',
       color: 'bg-fresh-pink'
     },
     {
       id: 'super_love',
       price: 7,
-      label: 'Super Love',
+      label: '超级爱心',
       icon: <Heart size={24} fill="currentColor" />,
-      description: 'You are amazing!',
+      description: '你太棒了！',
       color: 'bg-fresh-accent'
     }
   ];
@@ -71,8 +71,8 @@ const GiftModal: React.FC<GiftModalProps> = ({ isOpen, onClose }) => {
               <Coffee size={24} />
             </div>
             <div>
-              <h2 className="text-xl font-black text-fresh-text">WeChat Pay Support</h2>
-              <p className="text-xs text-gray-500 font-bold">Scan QR code to support</p>
+              <h2 className="text-xl font-black text-fresh-text">微信支付支持</h2>
+              <p className="text-xs text-gray-500 font-bold">扫描二维码进行支持</p>
             </div>
           </div>
           <button 
@@ -91,8 +91,8 @@ const GiftModal: React.FC<GiftModalProps> = ({ isOpen, onClose }) => {
           {!selectedOption ? (
             <>
                 <p className="text-fresh-text font-bold text-sm mb-6 text-center leading-relaxed">
-                    If you found this tool helpful for your PM career, consider supporting its development. 
-                    Your contribution helps keep the servers running and the AI optimizing!
+                    如果您觉得这个工具对您的职业生涯有帮助，请考虑支持它的开发。
+                    您的贡献将帮助保持服务器运行和 AI 持续优化！
                 </p>
 
                 <div className="grid gap-4">
@@ -124,7 +124,7 @@ const GiftModal: React.FC<GiftModalProps> = ({ isOpen, onClose }) => {
           ) : (
             <div className="flex flex-col items-center animate-in slide-in-from-right duration-300">
                 <div className="mb-4 text-center">
-                    <p className="text-gray-500 font-bold text-sm">Scan with WeChat to pay</p>
+                    <p className="text-gray-500 font-bold text-sm">微信扫码支付</p>
                     <div className="text-3xl font-black text-fresh-text mt-2">¥{selectedOption.price}</div>
                     <div className="text-sm text-primary font-bold mt-1">{selectedOption.label}</div>
                 </div>
@@ -137,14 +137,14 @@ const GiftModal: React.FC<GiftModalProps> = ({ isOpen, onClose }) => {
                     onClick={() => setSelectedOption(null)}
                     className="text-sm text-gray-500 font-bold hover:text-fresh-text underline"
                 >
-                    Back to options
+                    返回选项
                 </button>
             </div>
           )}
 
           <div className="mt-8 text-center">
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-              Secure Payment via WeChat Pay
+              安全支付 • 微信支付
             </p>
           </div>
         </div>
