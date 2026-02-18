@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Database, Zap, Cloud, LayoutDashboard, Shield } from 'lucide-react';
+import { Database, Zap, Cloud, LayoutDashboard, Shield, Settings } from 'lucide-react';
 import SyncModal from './SyncModal';
 import AdminLoginModal from './AdminLoginModal';
+import SettingsModal from './SettingsModal';
 import { useResumeStore } from '../store/useResumeStore';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
-  const { syncStatus, user } = useResumeStore();
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const { syncStatus, user, aiConfig, setAiConfig } = useResumeStore();
 
   return (
     <>
@@ -38,6 +40,15 @@ const Header = () => {
                 title="管理员入口"
             >
                 <Shield size={16} />
+            </button>
+
+            {/* AI Settings - Always visible */}
+            <button 
+                onClick={() => setIsSettingsModalOpen(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-transparent hover:bg-gray-100 transition-all duration-300 text-gray-400 hover:text-gray-900"
+                title="AI设置"
+            >
+                <Settings size={16} />
             </button>
 
             {/* Admin Dashboard Link - Only visible if user is ALREADY admin */}
@@ -79,6 +90,13 @@ const Header = () => {
       <AdminLoginModal 
         isOpen={isAdminLoginOpen}
         onClose={() => setIsAdminLoginOpen(false)}
+      />
+
+      <SettingsModal 
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        config={aiConfig}
+        onSave={setAiConfig}
       />
     </>
   );

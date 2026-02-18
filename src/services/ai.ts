@@ -78,6 +78,10 @@ export async function optimizeResume(
     if (!key) {
         throw new Error('API Key is missing. Please check your settings or .env file.');
     }
+
+    if (key.startsWith('http')) {
+        throw new Error('Configuration Error: API Key appears to be a URL. You might have swapped API Key and Base URL in your Vercel Environment Variables.');
+    }
     
     let levelInstruction = '';
     switch (identityLevel) {

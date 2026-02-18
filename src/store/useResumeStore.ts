@@ -216,7 +216,7 @@ ${data.result}
       },
     }),
     {
-      name: 'pm-resume-storage-v6', // Bump to v6 to force migration
+      name: 'pm-resume-storage-v8', // Bump to v8 for new key
       version: 1, 
       partialize: (state) => ({ 
         history: state.history,
@@ -226,16 +226,29 @@ ${data.result}
         user: state.user
       }),
       migrate: (persistedState: any, version: number) => {
-        // Force reset of aiConfig regardless of previous state
-        // This ensures bad config (swapped keys/urls) is wiped out
-        return {
-            ...persistedState,
-            aiConfig: {
-                apiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
-                baseUrl: import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.deepseek.com',
-                model: import.meta.env.VITE_OPENAI_MODEL || 'deepseek-chat'
-            }
-        } as ResumeState;
+         // Sanitize Env Vars
+         let envKey = import.meta.env.VITE_OPENAI_API_KEY || '';
+         let envUrl = import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.deepseek.com';
+         
+         // Auto-correct if user swapped them in Vercel
+         if (envKey.startsWith('http') && !envUrl.startsWith('http')) {
+             const temp = envKey;
+             envKey = envUrl; // This might be the key if swapped
+             envUrl = temp;
+         } else if (envKey.startsWith('http')) {
+             // Key is URL, but URL is also URL? Or URL is empty?
+             // Just invalid key
+             envKey = ''; 
+         }
+
+         return {
+             ...persistedState,
+             aiConfig: {
+                 apiKey: envKey,
+                 baseUrl: envUrl,
+                 model: import.meta.env.VITE_OPENAI_MODEL || 'deepseek-chat'
+             }
+         } as ResumeState;
       }
     }
   )
